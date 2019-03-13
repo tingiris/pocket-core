@@ -1,0 +1,108 @@
+# Note: This is a multi network setup, connecting the Pocket Node both to Testnet and Mainnet
+version: '2'
+
+volumes:
+  aion-mainnet: {}
+  aion-mastery: {}
+  dynamodb: {}
+
+
+services:
+  aion-mainnet:
+    image: poktnetwork/aion
+    build: 
+      context: .
+      dockerfile: Dockerfile.aion
+
+    expose:
+      - "8545"
+      - "8547"
+      - "30303"
+    
+    volumes:
+      - aion-mainnet:/opt/aion/mainnet/
+      - /var/log/aion:/opt/aion/mainnet/log/
+
+    environment:
+      java_api_listen_address: "0.0.0.0"
+      rpc_listen_address: "0.0.0.0"
+      AION_NETWORK: "mainnet"
+
+  aion-mastery:
+    image: poktnetwork/aion
+    build: 
+      context: .
+      dockerfile: Dockerfile.aion
+
+    expose:
+      - "8545"
+      - "8547"
+      - "30303"
+    
+    volumes:
+      - aion-mastery:/opt/aion/mastery/
+      - /var/log/aion:/opt/aion/mastery/log/
+
+    environment:
+      java_api_listen_address: "0.0.0.0"
+      rpc_listen_address: "0.0.0.0"
+      AION_NETWORK: "mastery"
+
+  dynamodb:
+    image: amazon/dynamodb-local
+    volumes:
+      - dynamodb
+    expose:
+      - "8000"
+
+  pocket-core-dispatch:
+    image: poktnetwork/pocket-core:mvp-staging-latest
+    build: 
+      context: ../../
+      dockerfile: Dockerfile
+    container_name: pocket-core-dispatch
+    depends_on:
+      - aion-mainnet
+      - aion-mastery
+    restart: on-failure
+    volumes:
+      - ./pocket-core-config:$HOME/datadir
+    expose:
+      - "8081"
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY} 
+      POCKET_CORE_AWS_DYNAMODB_ENDPOINT: http://dynamodb:8000
+      POCKET_CORE_AWS_DYNAMODB_REGION: us-east-1
+      POCKET_CORE_AWS_DYNAMODB_TABLE: dispatch-peers-staging
+      POCKET_CORE_S3_CONFIG: ${POCKET_CORE_S3_CONFIG}
+      POCKET_CORE_DISPATCH_IP: pocket-core-dispatch 
+      POCKET_CORE_DISPATCH_PORT: 8081 
+      POCKET_CORE_NODE_TYPE: dispatch 
+      POCKET_CORE_PATH_DATADIR: /go/src/github.com/pokt-network/pocket-core/datadir 
+
+
+  pocket-core-service:
+    image: poktnetwork/pocket-core:mvp-staging-latest
+    build: 
+      context: ../../
+      dockerfile: Dockerfile 
+    container_name: pocket-core-service
+    restart: on-failure
+    volumes:
+      - ./pocket-core-config:$HOME/datadir
+    expose:
+      - "8081"
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY} 
+      POCKET_CORE_AWS_DYNAMODB_ENDPOINT: http://dynamodb:8000 
+      POCKET_CORE_AWS_DYNAMODB_REGION: us-east-1
+      POCKET_CORE_AWS_DYNAMODB_TABLE: dispatch-peers-staging  
+      POCKET_CORE_DISPATCH_IP: pocket-core-dispatch 
+      POCKET_CORE_DISPATCH_PORT: 8081
+      POCKET_CORE_NODE_TYPE: service 
+      POCKET_CORE_PATH_DATADIR: /go/src/github.com/pokt-network/pocket-core/datadir 
+      POCKET_CORE_SERVICE_GID: GID2 
+      POCKET_CORE_SERVICE_IP: pocket-core-service
+      POCKET_CORE_SERVICE_PORT: 8081

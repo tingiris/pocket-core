@@ -1,0 +1,22 @@
+[
+    {
+        "blockchain": {
+            "name": "AION",
+            "netid": "256",
+            "version": "0"
+        },
+        "port": "8045",
+        "medium": "rpc",
+        "host": "aion-mainnet"
+    }, 
+    {
+        "blockchain": {
+            "name": "AION",
+            "netid": "32",
+            "version": "0"
+        },
+        "port": "8045",
+        "medium": "rpc",
+        "host": "aion-mastery"
+    }
+]
