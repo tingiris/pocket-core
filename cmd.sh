@@ -29,7 +29,8 @@ if [ $POCKET_CORE_NODE_TYPE = "dispatch" ]; then
 	echo 'Starting pocket-core dispatch'
 
 	exec pocket-core --dispatch \
-		--datadirectory ${POCKET_PATH_DATADIR:-datadir} \
+		--ip ${POCKET_CORE_DISPATCH_IP:-127.0.0.1} \
+		--datadirectory ${POCKET_CORE_PATH_DATADIR:-datadir} \
 		--dbend ${POCKET_CORE_AWS_DYNAMODB_ENDPOINT:-dynamodb.us-east-1.amazonaws.com} \
 		--dbtable ${POCKET_CORE_AWS_DYNAMODB_TABLE:-dispatch-peers-staging} \
 		--dbregion ${POCKET_CORE_AWS_DYNAMODB_REGION:-us-east-1} \
