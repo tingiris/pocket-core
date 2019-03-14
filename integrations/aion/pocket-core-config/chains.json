@@ -5,7 +5,7 @@
             "netid": "256",
             "version": "0"
         },
-        "port": "8045",
+        "port": "8545",
         "medium": "rpc",
         "host": "aion-mainnet"
     }, 
@@ -15,7 +15,7 @@
             "netid": "32",
             "version": "0"
         },
-        "port": "8045",
+        "port": "8545",
         "medium": "rpc",
         "host": "aion-mastery"
     }
