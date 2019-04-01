@@ -58,7 +58,10 @@ var _ = Describe("Session", func() {
 					})
 				})
 				Context("Devid is not found in world state", func() {
-					// TODO pending
+					
+					PIt("should error", func() {
+						// TODO pending
+					})
 				})
 			})
 			
@@ -72,9 +75,9 @@ var _ = Describe("Session", func() {
 					})
 				})
 				
-				Context("Block hash is expired", func() {
+				PContext("Block hash is expired", func() {
 					
-					It("should error", func() {
+					PIt("should error", func() {
 						// TODO pending
 					})
 				})
@@ -124,28 +127,28 @@ var _ = Describe("Session", func() {
 						
 						Context("Small pool of nodes, small number of trials", func() {
 							
-							It("should result in evenly distributed nodes", func() {
+							PIt("should result in evenly distributed nodes", func() {
 								// TODO heavy compute
 							})
 						})
 						
 						Context("Small pool of nodes, large number of trials", func() {
 							
-							It("should be evenly distributed", func() {
+							PIt("should be evenly distributed", func() {
 								// TODO heavy compute
 							})
 						})
 						
 						Context("Large pool of nodes, small number of trials", func() {
 							
-							It("should be evenly distributed", func() {
+							PIt("should be evenly distributed", func() {
 								// TODO heavy compute
 							})
 						})
 						
 						Context("Large pool of nodes, large number of trials", func() {
 							
-							It("should be evenly distributed", func() {
+							PIt("should be evenly distributed", func() {
 								// TODO heavy compute
 							})
 						})
@@ -160,7 +163,7 @@ var _ = Describe("Session", func() {
 						Expect(len(s.Nodes.ServiceNodes)).To(Equal(session.MAXSERVICERS))
 					})
 					
-					It("should check the validity of the assigned roles", func() {
+					PIt("should check the validity of the assigned roles", func() {
 						// TODO need blockchain layer
 					})
 					
