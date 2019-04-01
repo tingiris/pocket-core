@@ -219,12 +219,10 @@ var _ = Describe("Session", func() {
 						
 						It("should expose the unique identifier", func() {
 							for _, node := range s.Nodes.ValidatorNodes {
-								Expect(node.GID).ToNot(BeNil())
-								Expect(len(node.GID)).ToNot(BeEmpty())
+								Expect(node.GID).ToNot(BeEmpty())
 							}
 							for _, node := range s.Nodes.ServiceNodes {
-								Expect(node.GID).ToNot(BeNil())
-								Expect(len(node.GID)).ToNot(BeEmpty())
+								Expect(node.GID).ToNot(BeEmpty())
 							}
 						})
 						
