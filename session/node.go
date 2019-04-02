@@ -11,12 +11,13 @@ import (
 type role int
 
 const (
-	NODECOUNT          = 5
-	MAXVALIDATORS      = (NODECOUNT / 2) + 1
-	MAXSERVICERS       = NODECOUNT / 2
-	VALIDATE      role = iota + 1
+	VALIDATE role = iota + 1
 	SERVICE
 	DELEGATEDMINTER
+	
+	NODECOUNT     = 5
+	MAXVALIDATORS = (NODECOUNT / 2) + 1
+	MAXSERVICERS  = NODECOUNT / 2
 )
 
 type Node struct {
@@ -31,16 +32,11 @@ type Node struct {
 type NodePool []Node
 
 // "GetSessionNodes" filters by blockchash, and returns the closest nodes to the key
-func (n NodePool) GetSessionNodes(s Session) (SessionNodes, error) {
+func (n NodePool) GetSessionNodes(s Session) (Nodes, error) {
 	n.Filter(hex.EncodeToString(s.Chain))
 	n.XOR(s)
 	n.Sort()
 	return n.GetClosestNodes(s)
-}
-
-// "Init" creates a nodePool from a seed
-func (n NodePool) Init(seed Seed) {
-	// n = seed.NodeList
 }
 
 // "Len" returns the length of the node pool -> needed for sort.Sort() interface
@@ -110,8 +106,8 @@ func (n *NodePool) Filter(blockchainHash string) {
 }
 
 // "GetClosestNodes" returns the 'proper' closest nodes to the session key
-func (n *NodePool) GetClosestNodes(s Session) (SessionNodes, error) {
-	var sessionNodes SessionNodes
+func (n *NodePool) GetClosestNodes(s Session) (Nodes, error) {
+	var sessionNodes Nodes
 	for _, node := range *n {
 		if node.Role == VALIDATE {
 			if len(sessionNodes.ValidatorNodes) == 0 {

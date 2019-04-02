@@ -7,14 +7,14 @@ import (
 var HashingAlgorithm = crypto.SHA256
 
 type Session struct {
-	Key       []byte       `json:"key"`
-	DevID     []byte       `json:"devid"`
-	BlockHash []byte       `json:"blockhash"`
-	Nodes     SessionNodes `json:"node"`
-	Chain     []byte       `json:"chain"`
+	Key       []byte `json:"key"`
+	DevID     []byte `json:"devid"`
+	BlockHash []byte `json:"blockhash"`
+	Chain     []byte `json:"chain"`
+	Nodes     Nodes  `json:"node"`
 }
 
-type SessionNodes struct {
+type Nodes struct {
 	ServiceNodes    []Node
 	ValidatorNodes  []Node
 	DelegatedMinter Node

@@ -1,7 +1,7 @@
 namespace fbs;
 
 table Blockchain {
-  name:[ubyte]
+  name:[ubyte];
   netid:uint;
   version:uint;
 }

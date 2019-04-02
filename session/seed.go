@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/google/flatbuffers/go"
 	"github.com/pokt-network/pocket-core/common"
 	"github.com/pokt-network/pocket-core/logs"
 	"github.com/pokt-network/pocket-core/types"
@@ -26,7 +27,7 @@ func NewSeed(devID []byte, nodePoolFilePath string, requestedBlockchain []byte, 
 }
 
 // "FileToNodes" converts the world state noodPool.json file into a slice of session.Node
-func FileToNodes(nodePoolFilePath string) []Node {
+func FileToNodes(nodePoolFilePath string) ([]Node, error) {
 	nws := FileToNWSSlice(nodePoolFilePath)
 	return NWSToNodes(nws)
 }
@@ -54,25 +55,33 @@ func FileToNWSSlice(nodePoolFilePath string) []common.NodeWorldState {
 
 // "NWSToNodes" converts the NodeWorldState slice of nodes from the json file
 // into a []Node which is used in our session seed
-func NWSToNodes(nws []common.NodeWorldState) []Node {
+func NWSToNodes(nws []common.NodeWorldState) ([]Node, error) {
 	var nodeList []Node
 	for _, node := range nws {
 		if !node.Active {
 			continue
 		}
-		nodeList = append(nodeList, nwsToNode(node))
+		n, err := nwsToNode(node)
+		if err != nil {
+			return nodeList, err
+		}
+		nodeList = append(nodeList, n)
 	}
-	return nodeList
+	return nodeList, nil
 }
 
 // "nwsToNode" is a helper function to NWSToNode which takes a NodeWorldState Node
 // and converts it to a session.Node
-func nwsToNode(nws common.NodeWorldState) Node {
+func nwsToNode(nws common.NodeWorldState) (Node, error) {
 	chains := types.NewSet()
 	var role role
 	gid, ip, port, _ := nws.EnodeSplit()
 	for _, c := range nws.Chains {
-		chains.Add(hex.EncodeToString(common.SHA256FromString(fmt.Sprintf("%v", c))))// TODO cross platform serialization
+		marshalChain, err := common.MarshalBlockchain(flatbuffers.NewBuilder(0), c)
+		if err != nil {
+			return Node{}, err
+		}
+		chains.Add(hex.EncodeToString(common.SHA256FromBytes(marshalChain)))
 	}
 	switch nws.IsVal {
 	case true:
@@ -80,9 +89,10 @@ func nwsToNode(nws common.NodeWorldState) Node {
 	case false:
 		role = SERVICE
 	}
-	return Node{GID: gid, IP: ip, Port: port, Chains: *chains, Role: role}
+	return Node{GID: gid, IP: ip, Port: port, Chains: *chains, Role: role}, nil
 }
 
+// "ErrorCheck()" checks all of the fields of a seed to ensure that it is considered initially valid
 func (s *Seed) ErrorCheck() error {
 	if s.DevID == nil || len(s.DevID) == 0 {
 		return NoDevID

@@ -13,12 +13,6 @@ type NodeWorldState struct {
 	Chains []Blockchain `json:"chains"`
 }
 
-type Blockchain struct {
-	Name    string `json:"name"`
-	NetID   string `json:"netid"`
-	Version string `json:"string"`
-}
-
 func (nws NodeWorldState) EnodeSplit() (gid string, ip string, port string, discport string) {
 	var url []string
 	e := nws.Enode

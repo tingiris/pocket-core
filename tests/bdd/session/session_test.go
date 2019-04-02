@@ -1,7 +1,7 @@
 package session_test
 
 import (
-	"fmt"
+	"github.com/google/flatbuffers/go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pokt-network/pocket-core/common"
@@ -20,20 +20,36 @@ import (
 // - How is the state of the session nodes maintained?
 // - Is service request validation ddos safe?
 // - Forking behavior
-// TODO use a diff serialization method for network wide protocol
 // TODO deciding on GID format
 // ************************************************************************************************************
+
+const (
+	test             = "teststring"
+	bcName           = "eth"
+	bcNetid          = "1"
+	bcVersion        = "1"
+	devid1           = "devid1"
+	devid2           = "devid2"
+	nodepoolFilepath = "../fixtures/xmasllnodespool"
+)
 
 var _ = Describe("Session", func() {
 	
 	Describe("Session Creation \\ Computing", func() {
-		// Variables representing the seed data
-		var devid = []byte(common.SHA256FromString("test"))
-		var blockhash = common.SHA256FromString("test")
-		var requestedChain = common.Blockchain{Name: "eth", NetID: "1", Version: "1"}
-		var requestedChainHash = common.SHA256FromString(fmt.Sprintf("%v", requestedChain))
-		absPath, _ := filepath.Abs("../fixtures/xsmallnodepool.json")
-		var nodelist = session.FileToNodes(absPath)
+		
+		devid := []byte(common.SHA256FromString(test))
+		blockhash := common.SHA256FromString(test)
+		requestedChain := common.Blockchain{Name: bcName, NetID: bcNetid, Version: bcVersion}
+		marshalBC, err := common.MarshalBlockchain(flatbuffers.NewBuilder(0), requestedChain)
+		if err != nil {
+			Fail(err.Error())
+		}
+		requestedChainHash := common.SHA256FromBytes(marshalBC)
+		absPath, _ := filepath.Abs(nodepoolFilepath)
+		nodelist, err := session.FileToNodes(absPath)
+		if err != nil {
+			Fail(err.Error())
+		}
 		
 		Context("Invalid Seed Data", func() {
 			
@@ -60,7 +76,7 @@ var _ = Describe("Session", func() {
 				Context("Devid is not found in world state", func() {
 					
 					PIt("should error", func() {
-						// TODO pending
+						// TODO need a world state
 					})
 				})
 			})
@@ -68,7 +84,7 @@ var _ = Describe("Session", func() {
 			Context("Block Hash is incorrect...", func() {
 				
 				Context("Not a valid block hash format", func() {
-					invalidBlockHashFormatSeed := session.Seed{DevID: devid, BlockHash: []byte("invalidtest"), RequestedChain: requestedChainHash, NodeList: nodelist}
+					invalidBlockHashFormatSeed := session.Seed{DevID: devid, BlockHash: []byte(test), RequestedChain: requestedChainHash, NodeList: nodelist}
 					It("should return `invalid block hash` error", func() {
 						_, err := session.NewSession(invalidBlockHashFormatSeed)
 						Expect(err).To(Equal(session.InvalidBlockHashFormat))
@@ -78,7 +94,7 @@ var _ = Describe("Session", func() {
 				PContext("Block hash is expired", func() {
 					
 					PIt("should error", func() {
-						// TODO pending
+						// TODO need a world state
 					})
 				})
 			})
@@ -86,7 +102,7 @@ var _ = Describe("Session", func() {
 			Context("Requested Blockchain is invalid...", func() {
 				
 				Context("No nodes are associated with a blockchain", func() {
-					noNodesSeed := session.Seed{DevID: devid, BlockHash: blockhash, RequestedChain: common.SHA256FromString("nosuchchain"), NodeList: nodelist}
+					noNodesSeed := session.Seed{DevID: devid, BlockHash: blockhash, RequestedChain: common.SHA256FromString(test), NodeList: nodelist}
 					It("should return `invalid blockchain` error", func() {
 						_, err := session.NewSession(noNodesSeed)
 						Expect(err).To(Equal(session.InsufficientNodes))
@@ -128,28 +144,32 @@ var _ = Describe("Session", func() {
 						Context("Small pool of nodes, small number of trials", func() {
 							
 							PIt("should result in evenly distributed nodes", func() {
-								// TODO heavy compute
+								// TODO using golangs built in random
+								// TODO need crypto consideration to make truly random
 							})
 						})
 						
 						Context("Small pool of nodes, large number of trials", func() {
 							
 							PIt("should be evenly distributed", func() {
-								// TODO heavy compute
+								// TODO using golangs built in random
+								// TODO need crypto consideration to make truly random
 							})
 						})
 						
 						Context("Large pool of nodes, small number of trials", func() {
 							
 							PIt("should be evenly distributed", func() {
-								// TODO heavy compute
+								// TODO using golangs built in random
+								// TODO need crypto consideration to make truly random
 							})
 						})
 						
 						Context("Large pool of nodes, large number of trials", func() {
 							
 							PIt("should be evenly distributed", func() {
-								// TODO heavy compute
+								// TODO using golangs built in random
+								// TODO need crypto consideration to make truly random
 							})
 						})
 					})
@@ -187,8 +207,8 @@ var _ = Describe("Session", func() {
 					})
 					
 					Context("2 sessions derived from different valid seed data", func() {
-						validSeed1 := session.NewSeed(common.SHA256FromString("devid1"), absPath, requestedChainHash, blockhash)
-						validSeed2 := session.NewSeed(common.SHA256FromString("devid2"), absPath, requestedChainHash, blockhash)
+						validSeed1 := session.NewSeed(common.SHA256FromString(devid1), absPath, requestedChainHash, blockhash)
+						validSeed2 := session.NewSeed(common.SHA256FromString(devid2), absPath, requestedChainHash, blockhash)
 						It("should be != and valid", func() {
 							s1, _ := session.NewSession(validSeed1)
 							s2, _ := session.NewSession(validSeed2)
