@@ -6,7 +6,7 @@ const (
 	devid                   = "devid"
 	blockhash               = "blockhash"
 	nodelist                = "nodelist"
-	requestedchain          = "requestedchain"
+	requestedchain          = "requested chain"
 	IsNotInSeed             = " is empty or nil "
 	IsInvalidFormat         = " is not in the correct format"
 	insufficientNodeString  = "not enough nodes to fulfill the session"
