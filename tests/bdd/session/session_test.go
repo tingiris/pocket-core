@@ -164,7 +164,7 @@ var _ = Describe("Session", func() {
 						})
 					})
 				})
-				
+        
 				Describe("Role assignment", func() {
 					
 					It("should assign roles to each node", func() {
