@@ -94,8 +94,10 @@ func xor(dst, a []byte, b []byte) error {
 }
 
 // "Filter" removes any nodes from the slice that do not contain the blockchainHash
+// TODO:
+// This is slow O(n). If the world state is stored as a slice or as a map, this could affect
+// implementation. For now this solution is acceptable, but optimizations should be made.
 func (n *NodePool) Filter(blockchainHash string) {
-	// TODO possible optimizations from node slice to map
 	tmp := (*n)[:0]
 	for _, node := range *n {
 		if node.Chains.Contains(blockchainHash) {

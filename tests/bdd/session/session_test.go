@@ -29,7 +29,7 @@ var _ = Describe("Session", func() {
 		
 		devid := []byte(common.SHA256FromString("foo"))
 		blockhash := common.SHA256FromString("foo")
-		requestedChain := common.Blockchain{Name: "ETH", NetID: "4", Version: "0"}
+		requestedChain := common.Blockchain{Name: "eth", NetID: "1", Version: "1"}
 		marshalBC, err := common.MarshalBlockchain(flatbuffers.NewBuilder(0), requestedChain)
 		if err != nil {
 			Fail(err.Error())
