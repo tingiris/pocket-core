@@ -23,29 +23,19 @@ import (
 // TODO deciding on GID format
 // ************************************************************************************************************
 
-const (
-	test             = "teststring"
-	bcName           = "eth"
-	bcNetid          = "1"
-	bcVersion        = "1"
-	devid1           = "devid1"
-	devid2           = "devid2"
-	nodepoolFilepath = "../fixtures/xmasllnodespool"
-)
-
 var _ = Describe("Session", func() {
 	
 	Describe("Session Creation \\ Computing", func() {
 		
-		devid := []byte(common.SHA256FromString(test))
-		blockhash := common.SHA256FromString(test)
-		requestedChain := common.Blockchain{Name: bcName, NetID: bcNetid, Version: bcVersion}
+		devid := []byte(common.SHA256FromString("foo"))
+		blockhash := common.SHA256FromString("foo")
+		requestedChain := common.Blockchain{Name: "ETH", NetID: "4", Version: "0"}
 		marshalBC, err := common.MarshalBlockchain(flatbuffers.NewBuilder(0), requestedChain)
 		if err != nil {
 			Fail(err.Error())
 		}
 		requestedChainHash := common.SHA256FromBytes(marshalBC)
-		absPath, _ := filepath.Abs(nodepoolFilepath)
+		absPath, _ := filepath.Abs("../fixtures/xsmallnodepool.json")
 		nodelist, err := session.FileToNodes(absPath)
 		if err != nil {
 			Fail(err.Error())
@@ -84,7 +74,7 @@ var _ = Describe("Session", func() {
 			Context("Block Hash is incorrect...", func() {
 				
 				Context("Not a valid block hash format", func() {
-					invalidBlockHashFormatSeed := session.Seed{DevID: devid, BlockHash: []byte(test), RequestedChain: requestedChainHash, NodeList: nodelist}
+					invalidBlockHashFormatSeed := session.Seed{DevID: devid, BlockHash: []byte("foo"), RequestedChain: requestedChainHash, NodeList: nodelist}
 					It("should return `invalid block hash` error", func() {
 						_, err := session.NewSession(invalidBlockHashFormatSeed)
 						Expect(err).To(Equal(session.InvalidBlockHashFormat))
@@ -102,7 +92,7 @@ var _ = Describe("Session", func() {
 			Context("Requested Blockchain is invalid...", func() {
 				
 				Context("No nodes are associated with a blockchain", func() {
-					noNodesSeed := session.Seed{DevID: devid, BlockHash: blockhash, RequestedChain: common.SHA256FromString(test), NodeList: nodelist}
+					noNodesSeed := session.Seed{DevID: devid, BlockHash: blockhash, RequestedChain: common.SHA256FromString("foo"), NodeList: nodelist}
 					It("should return `invalid blockchain` error", func() {
 						_, err := session.NewSession(noNodesSeed)
 						Expect(err).To(Equal(session.InsufficientNodes))
@@ -113,7 +103,7 @@ var _ = Describe("Session", func() {
 		
 		Context("Valid Seed Data", func() {
 			absPath, _ := filepath.Abs("../fixtures/mediumnodepool.json")
-			validSeed := session.NewSeed(devid, absPath, requestedChainHash, blockhash)
+			validSeed, _ := session.NewSeed(devid, absPath, requestedChainHash, blockhash)
 			s, err := session.NewSession(validSeed)
 			It("should not have returned any error", func() {
 				Expect(err).To(BeNil())
@@ -207,8 +197,8 @@ var _ = Describe("Session", func() {
 					})
 					
 					Context("2 sessions derived from different valid seed data", func() {
-						validSeed1 := session.NewSeed(common.SHA256FromString(devid1), absPath, requestedChainHash, blockhash)
-						validSeed2 := session.NewSeed(common.SHA256FromString(devid2), absPath, requestedChainHash, blockhash)
+						validSeed1, _ := session.NewSeed(common.SHA256FromString("foo"), absPath, requestedChainHash, blockhash)
+						validSeed2, _ := session.NewSeed(common.SHA256FromString("bar"), absPath, requestedChainHash, blockhash)
 						It("should be != and valid", func() {
 							s1, _ := session.NewSession(validSeed1)
 							s2, _ := session.NewSession(validSeed2)

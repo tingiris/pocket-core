@@ -39,7 +39,11 @@ var (
 	chains = [...]string{eth, btc, ltc, dash, aion, eos}
 )
 
-func RandomChains() []common.Blockchain {
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
+
+func randomchains() []common.Blockchain {
 	var res []common.Blockchain
 	rand.Shuffle(len(chains), func(i, j int) { chains[i], chains[j] = chains[j], chains[i] })
 	c := chains[rand.Intn(len(chains)-1):]
@@ -50,9 +54,9 @@ func RandomChains() []common.Blockchain {
 	return res
 }
 
-func CreateNode(i int) common.NodeWorldState {
+func createNode(nodeNumber int) common.NodeWorldState {
 	hasher := sha256.New()
-	hasher.Write([]byte(node + strconv.Itoa(i)))
+	hasher.Write([]byte(node + strconv.Itoa(nodeNumber)))
 	hash := hex.EncodeToString(hasher.Sum(nil))
 	return common.NodeWorldState{Enode: enodePrefix + hash + enodeDelimiter + strconv.Itoa(rand.Intn(255)) + dot +
 	strconv.Itoa(rand.Intn(255)) + dot + strconv.Itoa(rand.Intn(255)) + dot + strconv.Itoa(rand.Intn(255)) + enodeDisport,
@@ -63,13 +67,11 @@ func CreateNode(i int) common.NodeWorldState {
 func CreateNodePool(amount int) []common.NodeWorldState {
 	var nodePool []common.NodeWorldState
 	for i := 0; i < amount; i++ {
-		nodePool = append(nodePool, CreateNode(i))
+		nodePool = append(nodePool, createNode(i))
 	}
 	return nodePool
 }
-func init() {
-	rand.Seed(time.Now().UTC().UnixNano())
-}
+
 func main() {
 	prefix := []string{xs, s, m, l}
 	sizes := []int{25, 500, 5000, 50000}

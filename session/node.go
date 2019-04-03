@@ -31,8 +31,8 @@ type Node struct {
 
 type NodePool []Node
 
-// "GetSessionNodes" filters by blockchash, and returns the closest nodes to the key
-func (n NodePool) GetSessionNodes(s Session) (Nodes, error) {
+// "GetNodes" filters by blockchash, and returns the closest nodes to the key
+func (n NodePool) GetNodes(s Session) (Nodes, error) {
 	n.Filter(hex.EncodeToString(s.Chain))
 	n.XOR(s)
 	n.Sort()
